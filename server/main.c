@@ -4,10 +4,13 @@
 #include <unistd.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
-
+#include <pthread.h>
+#include <string.h>
 
 #define IP_ADDR "0.0.0.0"
 
+
+void* handleConnection(void*);
 
 int main(int argc, char *argv[])
 {
@@ -72,7 +75,34 @@ int main(int argc, char *argv[])
 
     for (;;)
     {
-        
+        int cnt;
+        if ((cnt=accept(skt,NULL,NULL))==-1)
+        {
+            perror("Accept error");
+            close(skt);
+            exit(EXIT_FAILURE);
+        }
+    
+        pthread_t tid;
+        int err;
+
+        err=pthread_create(&tid,NULL,handleConnection,(void*)cnt);
+        if (err!=0)
+        {
+            close(skt);
+            close(cnt);
+            printf("Pthread_create error: %s\n",strerror(err));
+            exit(EXIT_FAILURE);
+        }
+    
+        if ((err=pthread_detach(tid))!=0)
+        {
+            close(skt);
+            close(cnt);
+            printf("Pthread_detach error: %s\n",strerror(err));
+            exit(EXIT_FAILURE);
+        }
+    
     }
 
     return 0;
