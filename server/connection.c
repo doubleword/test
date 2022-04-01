@@ -33,6 +33,13 @@ void* handleConnection(void *arg)
         return NULL;
     }
 
+    if (filenameLength==0)
+    {
+        write(cnt,"Invalid filename length!",25);
+        close(cnt);
+        return NULL;
+    }
+
     // Read filename from the socket
     char filename[256];
     filename[filenameLength]='\0';
