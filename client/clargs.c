@@ -136,16 +136,6 @@ void parseArgs(struct clArgs* args,int argc, char *argv[])
     }
 
 
-    // if (args->filename==NULL)
-    // {
-    //     puts("[*] Filename is empty");
-    // }
-
-    // puts("Arguments:");
-    // if (args->filename) puts(args->filename);
-    // puts(args->ip);
-    // puts(args->port);
-    // puts(args->filepath);
 
 
 }
