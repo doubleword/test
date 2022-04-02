@@ -19,8 +19,8 @@ Message format:
 
 void* handleConnection(void *arg)
 {
-
-    int cnt=(int)arg;
+    
+    intptr_t cnt=(intptr_t)arg;
     unsigned char filenameLength;
     
     // Read filename length from the socket

@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 
     for (;;)
     {
-        int cnt;
+        intptr_t cnt;
         if ((cnt=accept(skt,NULL,NULL))==-1)
         {
             perror("Accept error");
