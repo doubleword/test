@@ -25,7 +25,6 @@ int main(int argc,char *argv[])
     if (args.filename==NULL)
         args.filename=extractFilename(args.filepath);
     
-    //printf("Main: %s\n",args.filename);
 
 
     struct sockaddr_in srvaddr;
@@ -66,14 +65,22 @@ int main(int argc,char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    
+/*
+
+Message format:
+
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+|  filename length (char: 1-255)  | filename (array of chars: 1-255)  | file binary data  |
++-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
+*/
 
     unsigned char header[256];
     header[0]=0;
     while (*(args.filename+header[0])!='\0')
         ++header[0];
 
-    strncpy(header+1,args.filename,header[0]);
+    memcpy(header+1,args.filename,header[0]);
 
     if (write(skt,header,1+header[0])==-1)
     {
