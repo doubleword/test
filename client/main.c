@@ -36,14 +36,12 @@ int main(int argc,char *argv[])
     else
     {
         puts("Invalid port number");
-        close(fd);
         exit(EXIT_FAILURE);
     }
 
     if (inet_pton(AF_INET,args.ip,&srvaddr.sin_addr)==0)
     {
         puts("Invalid IPv4 address");
-        close(fd);
         exit(EXIT_FAILURE);
     }
 
@@ -52,7 +50,6 @@ int main(int argc,char *argv[])
     if ((skt=socket(AF_INET,SOCK_STREAM,0))==-1)
     {
         perror("Socket error");
-        close(fd);
         exit(EXIT_FAILURE);
     }
 
@@ -60,8 +57,6 @@ int main(int argc,char *argv[])
     if (connect(skt,(struct sockaddr*)&srvaddr,sizeof(srvaddr))==-1)
     {
         perror("Connect error");
-        close(fd);
-        close(skt);
         exit(EXIT_FAILURE);
     }
 
@@ -85,8 +80,6 @@ Message format:
     if (write(skt,header,1+header[0])==-1)
     {
         perror("Write error");
-        close(fd);
-        close(skt);
         exit(EXIT_FAILURE);
     }
 
@@ -100,8 +93,6 @@ Message format:
     if (numWrote==-1)
     {
         perror("Sendfile error");
-        close(fd);
-        close(skt);
         exit(EXIT_FAILURE);
     }
 

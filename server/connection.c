@@ -125,18 +125,10 @@ void* handleConnection(void *arg)
     }
 
     if (numRead==-1)
-    {
         perror("Read error");
-        close(cnt);
-        close(fd);
-        free(buf);
-        return NULL;
-    }
 
     
     close(fd); //Releases the file lock
-
-
     close(cnt);
     free(buf);
     return NULL;

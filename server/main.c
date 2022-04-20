@@ -54,21 +54,18 @@ int main(int argc, char *argv[])
     if (setsockopt(skt,SOL_SOCKET,SO_REUSEADDR,&optval,sizeof(optval))==-1)
     {
         perror("Setsockopt error");
-        close(skt);
         exit(EXIT_FAILURE);
     }
 
     if (bind(skt,(struct sockaddr *)&srvaddr,sizeof(srvaddr))==-1)
     {
         perror("Bind error");
-        close(skt);
         exit(EXIT_FAILURE);
     }
 
     if (listen(skt,10)==-1)
     {
         perror("Listen error");
-        close(skt);
         exit(EXIT_FAILURE);
     }
 
@@ -79,7 +76,6 @@ int main(int argc, char *argv[])
         if ((cnt=accept(skt,NULL,NULL))==-1)
         {
             perror("Accept error");
-            close(skt);
             exit(EXIT_FAILURE);
         }
     
@@ -89,16 +85,12 @@ int main(int argc, char *argv[])
         err=pthread_create(&tid,NULL,handleConnection,(void*)cnt);
         if (err!=0)
         {
-            close(skt);
-            close(cnt);
             printf("Pthread_create error: %s\n",strerror(err));
             exit(EXIT_FAILURE);
         }
     
         if ((err=pthread_detach(tid))!=0)
         {
-            close(skt);
-            close(cnt);
             printf("Pthread_detach error: %s\n",strerror(err));
             exit(EXIT_FAILURE);
         }
