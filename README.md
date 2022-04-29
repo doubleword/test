@@ -18,6 +18,7 @@ Options:
 -h               Print help and exit
 -p PORT          Port to listen. Default: 8080
 -d DIR           Directory for saving files. Default: ./
+-t THREADS       Number of threads to use. Default: 150
 ```
 # Client
 ```
