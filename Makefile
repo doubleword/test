@@ -1,5 +1,5 @@
 SERVER_SRC = server/main.c server/clargs.c server/connection.c
-SERVER_HEADERS = server/clargs.h
+SERVER_HEADERS = server/clargs.h server/connection.h
 
 CLIENT_SRC = client/main.c client/clargs.c 
 CLIENT_HEADERS = client/clargs.h

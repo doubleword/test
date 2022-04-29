@@ -1,4 +1,5 @@
 #include "clargs.h"
+#include "connection.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -10,7 +11,7 @@
 #define IP_ADDR "0.0.0.0"
 
 
-void* handleConnection(void*);
+
 
 int main(int argc, char *argv[])
 {
@@ -81,6 +82,29 @@ int main(int argc, char *argv[])
 
     for (;;)
     {
+
+        int err;
+        if ((err=pthread_mutex_lock(&connMtx))!=0)
+        {
+            printf("Pthread_mutex_lock error: %s\n",strerror(err));
+            exit(EXIT_FAILURE);
+        }
+
+        while (activeConnections>=maxThreads)
+            if ((err=pthread_cond_wait(&connCond,&connMtx))!=0)
+            {
+                printf("Pthread_cond_wait error: %s\n",strerror(err));
+                exit(EXIT_FAILURE);
+            }
+
+        ++activeConnections;
+
+        if ((err=pthread_mutex_unlock(&connMtx))!=0)
+        {
+            printf("Pthread_mutex_unlock error: %s\n",strerror(err));
+            exit(EXIT_FAILURE);
+        }
+
         intptr_t cnt;
         if ((cnt=accept(skt,NULL,NULL))==-1)
         {
@@ -89,8 +113,7 @@ int main(int argc, char *argv[])
         }
     
         pthread_t tid;
-        int err;
-
+        
         err=pthread_create(&tid,NULL,handleConnection,(void*)cnt);
         if (err!=0)
         {

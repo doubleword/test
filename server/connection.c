@@ -3,8 +3,17 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <sys/file.h>
+#include <pthread.h>
+#include <string.h>
 
 #define BUF_SZ 1024
+
+
+int activeConnections=0;
+
+pthread_mutex_t connMtx=PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t connCond=PTHREAD_COND_INITIALIZER;
+
 
 /*
 
@@ -30,14 +39,14 @@ void* handleConnection(void *arg)
         if (numRead==-1)
             perror("Read error");
         close(cnt);
-        return NULL;
+        goto decrease_conn_count;
     }
 
     if (filenameLength==0)
     {
         write(cnt,"Invalid filename length!",25);
         close(cnt);
-        return NULL;
+        goto decrease_conn_count;
     }
 
     // Read filename from the socket
@@ -61,7 +70,7 @@ void* handleConnection(void *arg)
         if (numRead==-1)
             perror("Read error");
         close(cnt);
-        return NULL;
+        goto decrease_conn_count;
     }
 
     // Check if filename contains forbidden characters: "/","\0"
@@ -70,7 +79,7 @@ void* handleConnection(void *arg)
         {
             write(cnt,"Forbidden characters in the filename!",38);
             close(cnt);
-            return NULL;
+            goto decrease_conn_count;
         }
 
 
@@ -80,7 +89,7 @@ void* handleConnection(void *arg)
     {
         perror("Open error");
         close(cnt);
-        return NULL;
+        goto decrease_conn_count;
     }
 
     // Forbid clients to write to the same file simultaneously
@@ -89,7 +98,7 @@ void* handleConnection(void *arg)
         perror("Flock error");
         close(cnt);
         close(fd);
-        return NULL;
+        goto decrease_conn_count;
     }
 
     char *buf=malloc(BUF_SZ);
@@ -98,7 +107,7 @@ void* handleConnection(void *arg)
         puts("Malloc error");
         close(cnt);
         close(fd);
-        return NULL;
+        goto decrease_conn_count;
     }
 
 
@@ -109,7 +118,7 @@ void* handleConnection(void *arg)
         close(cnt);
         close(fd);
         free(buf);
-        return NULL;
+        goto decrease_conn_count;
     }
 
     while ((numRead=read(cnt,buf,BUF_SZ))>0)
@@ -120,7 +129,7 @@ void* handleConnection(void *arg)
             close(cnt);
             close(fd);
             free(buf);
-            return NULL;
+            goto decrease_conn_count;
         }
     }
 
@@ -131,5 +140,31 @@ void* handleConnection(void *arg)
     close(fd); //Releases the file lock
     close(cnt);
     free(buf);
+
+
+    int err;
+    
+decrease_conn_count:
+    
+    if ((err=pthread_mutex_lock(&connMtx))!=0)
+    {
+        printf("Pthread_mutex_lock error: %s\n",strerror(err));
+        exit(EXIT_FAILURE);
+    }
+
+    --activeConnections;
+    
+    if ((err=pthread_mutex_unlock(&connMtx))!=0)
+    {
+        printf("Pthread_mutex_ulock error: %s\n",strerror(err));
+        exit(EXIT_FAILURE);
+    }
+
+    if ((err=pthread_cond_signal(&connCond))!=0)
+    {
+        printf("Pthread_cond_signal error: %s\n",strerror(err));
+        exit(EXIT_FAILURE);
+    }
+
     return NULL;
 }
