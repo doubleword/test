@@ -36,6 +36,15 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
+
+    int maxThreads=atoi(args.threads);
+    if (maxThreads<=0)
+    {
+        puts("Invalid thread amount");
+        exit(EXIT_FAILURE);
+    }
+
+
     if (inet_pton(AF_INET,IP_ADDR,&srvaddr.sin_addr)==0)
     {
         puts("Invalid IPv4 address");

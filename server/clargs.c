@@ -9,6 +9,7 @@ static const char* helpStr=
 "-h\t\t Print help and exit\n"
 "-p PORT\t\t Port to listen. Default: 8080\n"
 "-d DIR\t\t Directory for saving files. Default: ./\n"
+"-t THREADS\t Number of threads to use. Default: 150\n"
 ;
 
 
@@ -18,9 +19,10 @@ void parseArgs(struct clArgs* args, int argc, char *argv[])
 
     args->port=NULL;
     args->dir=NULL;
+    args->threads=NULL;
 
     int opt;
-    while ((opt=getopt(argc,argv,":p:d:h"))!=-1)
+    while ((opt=getopt(argc,argv,":p:d:t:h"))!=-1)
     {
         switch (opt)
         {
@@ -49,6 +51,17 @@ void parseArgs(struct clArgs* args, int argc, char *argv[])
                 args->dir=optarg;
                 break;
 
+            case 't':
+                if (args->threads)
+                {
+                    puts("The option -t was specified more than once");
+                    printf(helpStr,argv[0]);
+                    exit(EXIT_FAILURE);
+                }
+
+                args->threads=optarg;
+                break;
+
             case 'h':
                 printf(helpStr,argv[0]);
                 exit(EXIT_SUCCESS);
@@ -69,5 +82,5 @@ void parseArgs(struct clArgs* args, int argc, char *argv[])
 
     if (!args->port) args->port="8080";
     if (!args->dir) args->dir="./";
-
+    if (!args->threads) args->threads="150";
 }

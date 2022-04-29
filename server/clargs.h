@@ -4,6 +4,7 @@ struct clArgs
 {
     char *port;
     char *dir;
+    char *threads;
 };
 
 
