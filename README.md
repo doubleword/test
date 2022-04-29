@@ -5,7 +5,7 @@
 
 # Compile
 ```
-git clone https://github.com/doubleword/test.git
+git clone https://github.com/doubleword/vk2022internshiptest.git
 cd test
 make
 ```
